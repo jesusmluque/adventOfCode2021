@@ -23,10 +23,10 @@ class SonarSweepTest extends AnyFlatSpec {
     assert(SonarSweep.timesOfIncreasesWithWindow(List(199,200,208,210,200,207,240,269,260,263)) == 5)
   }
 
-  "The number of times a deph increases each 3-window in the large exercise " should "be 5" in {
+  "The number of times a deph increases each 3-window in the large exercise " should "be 1150" in {
     val input = Source.fromResource("SonarSweep1").getLines.toList.map(_.toInt)
 
-    assert(SonarSweep.timesOfIncreasesWithWindow(input) == 5)
+    assert(SonarSweep.timesOfIncreasesWithWindow(input) == 1150)
   }
 
 }
