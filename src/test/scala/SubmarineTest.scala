@@ -15,4 +15,8 @@ class SubmarineTest extends AnyFlatSpec {
   "The final depth and horizontal position multiplied using aim " should " be 900 in Exemple1 " in {
     assert(Submarine.calculateFinalPositionWithAIM(Source.fromResource("Submarine1").getLines().toList) == 900)
   }
+
+  "The final depth and horizontal position multiplied using aim " should " be 1604592846 in Exercise file " in {
+    assert(Submarine.calculateFinalPositionWithAIM(Source.fromResource("Submarine2").getLines().toList) == 1604592846)
+  }
 }
