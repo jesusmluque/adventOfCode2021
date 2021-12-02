@@ -11,9 +11,7 @@ object Submarine {
       case ("up", value) :: tail => calculatePositions(tail, (acc._1, acc._2 - value))
       case _ :: tail  => calculatePositions(tail, acc)
 
-
     val parsedIns: List[(String, Int)] = parseInstructions(instructions)
-
     val result = calculatePositions(parsedIns, (0,0))
     result._1 * result._2
 
@@ -26,9 +24,7 @@ object Submarine {
       case ("up", value) :: tail => calculatePositions(tail, (acc._1, acc._2, acc._3 - value))
       case _ :: tail  => calculatePositions(tail, acc)
 
-
     val parsedIns: List[(String, Int)] = parseInstructions(instructions)
-
     val result = calculatePositions(parsedIns, (0,0,0))
     result._1 * result._2
 
