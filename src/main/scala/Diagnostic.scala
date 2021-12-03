@@ -1,3 +1,5 @@
+import scala.annotation.tailrec
+
 object Diagnostic {
 
   def calculateRatesMultiplication(list: List[String]):Int =
@@ -14,4 +16,22 @@ object Diagnostic {
     
   def calculateRate(input: Vector[List[Int]], f:List[Int] => Int) =
     Integer.parseInt(input.map(f).mkString(""), 2)
+
+  def calculateSupportRatesMultiplication(list: List[String]): Int =
+    @tailrec
+    def filter(list: List[String], index: Int, condition: List[Int] => Int):Int =
+      if (list.size == 1)
+        Integer.parseInt(list(0), 2)
+      else
+        val input = parseData(list)
+        val filteredList = list.filter { n =>
+          val comp = condition(input(index))
+          n.toCharArray()(index) == comp.toString.toCharArray()(0)
+        }
+        filter(filteredList, index + 1, condition)
+
+    val oxigen = filter(list, 0, l => if (l.count(_ == 1) >= l.count(_ == 0)) 1 else 0)
+    val co2 = filter(list, 0, l => if (l.count(_ == 1) < l.count(_ == 0)) 1 else 0)
+
+    oxigen * co2
 }
