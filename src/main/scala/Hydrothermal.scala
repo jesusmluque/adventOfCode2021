@@ -1,6 +1,6 @@
 object Hydrothermal {
 
-  def calculatePointsOverlaped(input: List[String]) = {
+  def calculatePointsOverlaped(input: List[String], diagonal:Boolean) = {
     val lines = input.map{ rawLine =>
       val points = rawLine.split("->")
       val init = points(0).split(",")
@@ -20,7 +20,16 @@ object Hydrothermal {
           acc2.updated(n, acc2.getOrElse(n, 0) + 1)
         }
       else
-        acc
+        val signX = if (next._1._1 > next._2._1) -1 else 1
+        val signY = if (next._1._2 > next._2._2) -1 else 1
+        val xs = Range(next._1._1, next._2._1 + signX, signX)
+        val ys = Range(next._1._2, next._2._2 + signY, signY)
+        if (xs.size == ys.size && diagonal)
+          xs.zip(ys).foldLeft(acc) { (acc2, n) =>
+            acc2.updated(n, acc2.getOrElse(n, 0) + 1)
+          }
+        else
+          acc
     }.values.count(_ >= 2)
   }
 }
