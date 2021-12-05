@@ -15,7 +15,7 @@ class GiantSquidTest extends AnyFlatSpec {
     assert(GiantSquid.winnerScoreLast(Source.fromResource("GiantSquid1").getLines().toList) == 1924)
   }
 
-  "The score for the last board to win" should "be 21607 in exercise" in {
-    assert(GiantSquid.winnerScoreLast(Source.fromResource("GiantSquid2").getLines().toList) == 1924)
+  "The score for the last board to win" should "be 19012 in exercise" in {
+    assert(GiantSquid.winnerScoreLast(Source.fromResource("GiantSquid2").getLines().toList) == 19012)
   }
 }

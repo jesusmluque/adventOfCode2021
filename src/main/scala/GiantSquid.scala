@@ -17,7 +17,6 @@ object GiantSquid {
 
   def execute2(boards: List[List[List[Int]]], values: List[Int], onlyOne: Boolean):Int =
     val eval = evaluation(boards, values.head)
-    System.out.println(eval._1.size)
     if (eval._1.size > 1)
       execute2(eval._1, values.tail, onlyOne)
     else if (onlyOne && eval._2 != -1)
@@ -27,7 +26,12 @@ object GiantSquid {
     }
 
   def findWinnerByRow(newBoards: List[List[List[Int]]]) = {
-    newBoards.map(b => (b.map(row => row.forall(_ == -1)).reduce((a, b) => a || b), b)).filter(_._1)
+    newBoards.map(b => (b.map(row => row.forall(_ == -1)).reduce((a, b) => a || b), b)).foldLeft((List[List[List[Int]]](), List[List[List[Int]]]())) { (acc, next) =>
+      if (next._1)
+        (acc._1, next._2 :: acc._2)
+      else
+        (next._2 :: acc._1, acc._2)
+    }
   }
 
   def changeRowsByCols(newBoards: List[List[List[Int]]]) = {
@@ -38,8 +42,8 @@ object GiantSquid {
     }
   }
 
-  def calculateWinnerBoardScore(value: Int, newBoards: List[List[List[Int]]], boardWithV: List[(Boolean, List[List[Int]])]) = {
-    (newBoards.filter(a => boardWithV.forall(b => b._2 != a)), boardWithV.map(b => b._2.foldLeft(0) { (acc, row) =>
+  def calculateWinnerBoardScore(value: Int, newBoards: List[List[List[Int]]], boardWithV: List[List[List[Int]]]) = {
+    (newBoards, boardWithV.map(b => b.foldLeft(0) { (acc, row) =>
       row.filter(_ != -1).sum + acc
     }).head * value)
   }
@@ -48,15 +52,14 @@ object GiantSquid {
     val newBoards = boards.map { board =>
       board.map(b => b.map(elem => if (elem == value) -1 else elem))
     }
-    System.out.println(newBoards.size)
 
-    val boardWithV = findWinnerByRow(changeRowsByCols(newBoards))
+    val (filterdBoard, boardWithV) = findWinnerByRow(changeRowsByCols(newBoards))
     if (boardWithV.nonEmpty)
-      calculateWinnerBoardScore(value, newBoards, boardWithV)
+      calculateWinnerBoardScore(value, filterdBoard, boardWithV)
     else
-      val boardWithH = findWinnerByRow(newBoards)
+      val (filterdBoard, boardWithH) = findWinnerByRow(newBoards)
       if (boardWithH.nonEmpty)
-        calculateWinnerBoardScore(value, newBoards, boardWithH)
+        calculateWinnerBoardScore(value, filterdBoard, boardWithH)
       else
         (newBoards, -1)
 
