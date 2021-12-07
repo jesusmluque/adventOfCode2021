@@ -25,6 +25,36 @@ object GiantSquid {
       execute2(eval._1, values.tail, true)
     }
 
+  def parseBoards(rawBoards: List[List[String]]) =
+    rawBoards.foldLeft((List[Int](), List[List[List[Int]]]())) { (acc, b) =>
+      if (b.size == 1) {
+        (b.flatMap(_.split(",").toList.map(_.toInt)), acc._2)
+      } else {
+        (acc._1, b.map(_.split(" ").toList.filter(_ != "").map(_.trim).map(_.toInt)) :: acc._2)
+      }
+    }
+
+  def splitData(raw: List[String], acc:List[List[String]], acc2: List[String]):List[List[String]] = raw match {
+    case Nil => acc2 :: acc
+    case "" :: tail => splitData(tail, acc2 :: acc, List())
+    case head :: tail => splitData(tail, acc, head :: acc2)
+  }
+  
+  def evaluation(boards: List[List[List[Int]]], value: Int) =
+    val newBoards = boards.map { board =>
+      board.map(b => b.map(elem => if (elem == value) -1 else elem))
+    }
+
+    val (filterdBoard, boardWithV) = findWinnerByRow(changeRowsByCols(newBoards))
+    if (boardWithV.nonEmpty)
+      calculateWinnerBoardScore(value, filterdBoard, boardWithV)
+    else
+      val (filterdBoard, boardWithH) = findWinnerByRow(newBoards)
+      if (boardWithH.nonEmpty)
+        calculateWinnerBoardScore(value, filterdBoard, boardWithH)
+      else
+        (newBoards, -1)
+        
   def findWinnerByRow(newBoards: List[List[List[Int]]]) = {
     newBoards.map(b => (b.map(row => row.forall(_ == -1)).reduce((a, b) => a || b), b)).foldLeft((List[List[List[Int]]](), List[List[List[Int]]]())) { (acc, next) =>
       if (next._1)
@@ -47,34 +77,4 @@ object GiantSquid {
       row.filter(_ != -1).sum + acc
     }).head * value)
   }
-
-  def evaluation(boards: List[List[List[Int]]], value: Int) =
-    val newBoards = boards.map { board =>
-      board.map(b => b.map(elem => if (elem == value) -1 else elem))
-    }
-
-    val (filterdBoard, boardWithV) = findWinnerByRow(changeRowsByCols(newBoards))
-    if (boardWithV.nonEmpty)
-      calculateWinnerBoardScore(value, filterdBoard, boardWithV)
-    else
-      val (filterdBoard, boardWithH) = findWinnerByRow(newBoards)
-      if (boardWithH.nonEmpty)
-        calculateWinnerBoardScore(value, filterdBoard, boardWithH)
-      else
-        (newBoards, -1)
-
-  def splitData(raw: List[String], acc:List[List[String]], acc2: List[String]):List[List[String]] = raw match {
-    case Nil => acc2 :: acc
-    case "" :: tail => splitData(tail, acc2 :: acc, List())
-    case head :: tail => splitData(tail, acc, head :: acc2)
-  }
-
-  def parseBoards(rawBoards: List[List[String]]) =
-    rawBoards.foldLeft((List[Int](), List[List[List[Int]]]())) { (acc, b) =>
-      if (b.size == 1) {
-        (b.flatMap(_.split(",").toList.map(_.toInt)), acc._2)
-      } else {
-        (acc._1, b.map(_.split(" ").toList.filter(_ != "").map(_.trim).map(_.toInt)) :: acc._2)
-      }
-    }
 }
