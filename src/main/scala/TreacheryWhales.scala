@@ -1,11 +1,16 @@
 object TreacheryWhales {
 
   def calculateFuel(positions: List[Int]) =
-    val positionSorted = positions.sorted
-    val mediana = positionSorted( if (positionSorted.size % 2 == 0) (positionSorted(positionSorted.size / 2) + positionSorted((positionSorted.size / 2 + 1))) / 2 else (positionSorted(positionSorted.size) / 2) + 1)
-    val map = positions.foldLeft(Map[Int,Int]()) { (acc, next) =>
-      acc.updated(next, acc.getOrElse(next, 0) + 1)
-    }
-    System.out.println(map)
-    mediana
+    positions.map { next =>
+      positions.foldLeft(0) { (acc,n) =>
+        acc + (next - n) * (if (next < n) -1 else 1)
+      }
+    }.min
+
+  def calculateFuel2(positions: List[Int]) =
+    (0 to positions.max).map { next =>
+      positions.foldLeft(0) { (acc, n) =>
+        acc + (1 to ((next - n) * (if (next < n) -1 else 1))).sum
+      }
+    }.min
 }
