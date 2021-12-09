@@ -49,10 +49,7 @@ object SmokeBasin {
         acc
       else
         field.getNeighbors(basin).foldLeft(acc) { (acc2, p) =>
-          if (field.get(p) != 9)
-            findBasinMembers(field, p, acc2 + basin)
-          else
-            acc2
+          findBasinMembers(field, p, acc2 + basin)
         }
     val field = SmokeBasinField(input)
     val basins = field.foldField(List[(Int, Int)]()) { (acc, x, y) =>
