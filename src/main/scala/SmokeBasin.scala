@@ -1,11 +1,13 @@
 import scala.annotation.tailrec
 
 object SmokeBasin {
+  type Coordinates = (Int, Int)
 
   case class SmokeBasinField(private val field: Vector[Vector[Int]]) {
-    def get(coordinates: (Int, Int)): Int = field(coordinates._1)(coordinates._2)
 
-    def getNeighbors(coordinates: (Int, Int)): List[(Int, Int)] =
+    def get(coordinates: Coordinates): Int = field(coordinates._1)(coordinates._2)
+
+    def getNeighbors(coordinates: Coordinates): List[Coordinates] =
       val indexLastXElement = field.size - 1
       val indexLastYElement = field.head.size - 1
       coordinates match {
@@ -20,29 +22,33 @@ object SmokeBasin {
         case (x, y) => (x + 1, y) :: (x - 1, y) :: (x, y + 1) :: (x, y - 1) :: Nil
       }
 
-    def foldField[A](acc: A)(f: (A, Int, Int) => A) =
+    def foldField[A](acc: A)(f: (A, Coordinates) => A) =
       this.field.zipWithIndex.foldLeft(acc) { (acc1, row) =>
         row._1.zipWithIndex.foldLeft(acc1) { (acc2, point) =>
-          f(acc2, row._2, point._2)
+          f(acc2, (row._2, point._2))
         }
       }
   }
   object SmokeBasinField {
-    def apply(raw: List[String]):SmokeBasinField =
-      SmokeBasinField(raw.zipWithIndex.foldLeft(Vector.fill(raw.length)(Vector.fill(raw.head.length)(0)))((acc,row) => acc.updated(row._2, row._1.split("").map(_.toInt).toVector)))
+    def apply(raw: List[String]):SmokeBasinField = {
+      val initialVector = Vector.fill(raw.length)(Vector.fill(raw.head.length)(0))
+      SmokeBasinField(raw.zipWithIndex.foldLeft(initialVector) { (acc, row) =>
+        acc.updated(row._2, row._1.split("").map(_.toInt).toVector)
+      })
+    }
   }
 
   def findRiskLevelFor(input: List[String]) =
     val field = SmokeBasinField(input)
-    field.foldField(0) {(acc:Int, x:Int, y:Int) =>
-      if (isALowPoint(x, y, field))
-        field.get(x, y) + 1 + acc
+    field.foldField(0) {(acc:Int, point) =>
+      if (isALowPoint(point, field))
+        field.get(point) + 1 + acc
       else
         acc
     }
 
   def findProductOfThreeLargestBasinsFor(input: List[String]) =
-    def findBasinMembers(field: SmokeBasinField, basin: (Int, Int), acc: Set[(Int, Int)]): Set[(Int, Int)] =
+    def findBasinMembers(field: SmokeBasinField, basin: Coordinates, acc: Set[Coordinates]): Set[Coordinates] =
       if (acc.contains(basin))
         acc
       else if (field.get(basin) == 9)
@@ -52,16 +58,16 @@ object SmokeBasin {
           findBasinMembers(field, p, acc2 + basin)
         }
     val field = SmokeBasinField(input)
-    val basins = field.foldField(List[(Int, Int)]()) { (acc, x, y) =>
-      if (isALowPoint(x, y, field))
-        (x, y) :: acc
+    val basins = field.foldField(List[Coordinates]()) { (acc, point) =>
+      if (isALowPoint(point, field))
+        point :: acc
       else
         acc
     }
     basins.map(findBasinMembers(field, _, Set())).sortBy(_.size).takeRight(3).map(_.size).product
 
-  def isALowPoint(x: Int, y: Int, field: SmokeBasinField) = {
-    val valuesOfNeighbors = field.getNeighbors((x, y)).map(field.get)
-    valuesOfNeighbors.count(_ <= field.get(x,y)) == 0
+  def isALowPoint(point: Coordinates, field: SmokeBasinField) = {
+    val valuesOfNeighbors = field.getNeighbors(point).map(field.get)
+    valuesOfNeighbors.count(_ <= field.get(point)) == 0
   }
 }
