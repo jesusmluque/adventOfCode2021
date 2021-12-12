@@ -29,6 +29,6 @@ class PassagePathingTest extends AnyFlatSpec {
   }
 
   "The number of paths through the cave of the exercise that visit the small cave at most one except one single cave that can be visited twice " should " be 144309 " in {
-    assert(PassagePathing.calculateNumberOfPathsWithSingleTwice(Source.fromResource("PassagePathing4").getLines().toList) == 144309)
+    assert(PassagePathing.calculateNumberOfPathsWithSingleTwice2(Source.fromResource("PassagePathing4").getLines().toList) == 144309)
   }
 }
