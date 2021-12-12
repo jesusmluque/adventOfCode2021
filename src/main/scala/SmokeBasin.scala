@@ -2,10 +2,11 @@ import scala.annotation.tailrec
 
 object SmokeBasin {
   type Coordinates = (Int, Int)
+  type Matrix[A] = Vector[Vector[A]]
 
-  case class SmokeBasinField(private val field: Vector[Vector[Int]]) {
+  case class SmokeBasinField[A](private val field: Matrix[A]) {
 
-    def get(coordinates: Coordinates): Int = field(coordinates._1)(coordinates._2)
+    def get(coordinates: Coordinates): A = field(coordinates._1)(coordinates._2)
 
     def getNeighbors(coordinates: Coordinates): List[Coordinates] =
       val indexLastXElement = field.size - 1
@@ -22,7 +23,7 @@ object SmokeBasin {
         case (x, y) => (x + 1, y) :: (x - 1, y) :: (x, y + 1) :: (x, y - 1) :: Nil
       }
 
-    def foldField[A](acc: A)(f: (A, Coordinates) => A) =
+    def foldField[B](acc: B)(f: (B, Coordinates) => B) =
       this.field.zipWithIndex.foldLeft(acc) { (acc1, row) =>
         row._1.zipWithIndex.foldLeft(acc1) { (acc2, point) =>
           f(acc2, (row._2, point._2))
@@ -30,7 +31,7 @@ object SmokeBasin {
       }
   }
   object SmokeBasinField {
-    def apply(raw: List[String]):SmokeBasinField = {
+    def apply(raw: List[String]):SmokeBasinField[Int] = {
       val initialVector = Vector.fill(raw.length)(Vector.fill(raw.head.length)(0))
       SmokeBasinField(raw.zipWithIndex.foldLeft(initialVector) { (acc, row) =>
         acc.updated(row._2, row._1.split("").map(_.toInt).toVector)
@@ -48,7 +49,7 @@ object SmokeBasin {
     }
 
   def findProductOfThreeLargestBasinsFor(input: List[String]) =
-    def findBasinMembers(field: SmokeBasinField, basin: Coordinates, acc: Set[Coordinates]): Set[Coordinates] =
+    def findBasinMembers(field: SmokeBasinField[Int], basin: Coordinates, acc: Set[Coordinates]): Set[Coordinates] =
       if (acc.contains(basin))
         acc
       else if (field.get(basin) == 9)
@@ -66,7 +67,7 @@ object SmokeBasin {
     }
     basins.map(findBasinMembers(field, _, Set())).sortBy(_.size).takeRight(3).map(_.size).product
 
-  def isALowPoint(point: Coordinates, field: SmokeBasinField) = {
+  def isALowPoint(point: Coordinates, field: SmokeBasinField[Int]) = {
     val valuesOfNeighbors = field.getNeighbors(point).map(field.get)
     valuesOfNeighbors.count(_ <= field.get(point)) == 0
   }
